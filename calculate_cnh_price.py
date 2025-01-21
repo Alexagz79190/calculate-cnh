@@ -1,36 +1,24 @@
 import pandas as pd
 import numpy as np
-import os
 from datetime import datetime
 import streamlit as st
 
 # Streamlit UI
-st.title("Traitement des fichiers CNH")
-st.write("Veuillez charger les fichiers nécessaires et lancer le traitement.")
+st.title("Traitement des fichiers TXT CNH")
+st.write("Veuillez charger un fichier TXT pour lancer le traitement.")
 
-# Section : Répertoire des fichiers
-directory = st.text_input("Répertoire des fichiers TXT :", r"G:\Pôle_DATA\Tarif\Cnh")
+# Section : Chargement du fichier TXT
+uploaded_file = st.file_uploader("Chargez un fichier TXT (format attendu : CNH Tarif)", type=["txt"])
 
-# Bouton pour lancer le traitement
-if st.button("Lancer le traitement"):
+if uploaded_file:
     try:
-        # Recherche du dernier fichier TXT modifié
-        st.write("Recherche du dernier fichier modifié...")
-        list_of_files = [f for f in os.listdir(directory) if f.endswith(".txt")]
-        if not list_of_files:
-            st.error("Aucun fichier TXT trouvé dans le répertoire spécifié.")
-            st.stop()
-
-        latest_file = max([os.path.join(directory, f) for f in list_of_files], key=os.path.getmtime)
-        st.write(f"Dernier fichier trouvé : `{latest_file}`")
-
         # Lecture du fichier TXT
-        st.write("Lecture du fichier tarif CNH...")
+        st.write("Lecture du fichier...")
         colspecs = [
             (0, 18), (18, 58), (58, 59), (59, 60), (60, 68), (68, 79), (79, 92),
             (92, 97), (97, 101), (101, 102), (102, 107), (107, 112), (112, 113), (113, 116)
         ]
-        df = pd.read_fwf(latest_file, colspecs=colspecs, header=None, skiprows=1)
+        df = pd.read_fwf(uploaded_file, colspecs=colspecs, header=None, skiprows=1)
         st.write(f"Fichier chargé avec succès : {len(df)} lignes.")
 
         # Renommage des colonnes
@@ -105,3 +93,5 @@ if st.button("Lancer le traitement"):
 
     except Exception as e:
         st.error(f"Erreur : {e}")
+else:
+    st.info("Veuillez charger un fichier TXT pour démarrer.")
